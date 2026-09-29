@@ -1,7 +1,8 @@
-const { Producto, Categoria } = require("../models");
+const { Producto, Categoria,Proveedor } = require("../models");
 
 const obtenerProductos = async (req, res) => {
-  const productos = await Producto.findAll({
+  try {
+    const productos = await Producto.findAll({
     attributes: ["id", "nombre", "precio", "stock"],
     include: {
       model: Categoria,
@@ -10,6 +11,10 @@ const obtenerProductos = async (req, res) => {
     },
   });
   res.json(productos);
+  } catch (error) {
+    res.status(500).json("error al obtener los productos")
+    
+  }
 };
 
 const obtenerProducto = async (req, res) => {
@@ -36,8 +41,28 @@ const crearProducto = async (req, res) => {
   res.json({ message: "Producto creado con exito!!!" });
 };
 
+const asociarProveedor= async(req,res)=>{
+  try {
+    const {prodId,provId}=req.params;
+    const producto= await Producto.findByPk(prdoId)
+    if(!producto){
+      res.status(404).json("produdcto no encontrado")
+    }
+    const proveedor= await Proveedor.findByPk(provId)
+    if(!proveedor){
+      res.status(404).json("proveedor no encontrado")
+    }
+    await producto.addProveedors(proveedor)       // funcion creada automaticamente addProveedor
+
+    res.status(201).json({message:"proveedor asociado con exito"});
+  } catch (error) {
+    res.status(500).json({message:"error al asociar el producto con el provedor"});
+  }
+}
+
 module.exports = {
   obtenerProductos,
   obtenerProducto,
   crearProducto,
+  asociarProveedor
 };

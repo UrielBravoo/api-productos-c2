@@ -25,8 +25,26 @@ const crearCategoria = async (req, res) => {
   res.status(201).json({ message: "Categoria creada con exito!!!" });
 };
 
+const obtenerCategoriaConProductos = async(req,res)=>{
+  const {id}=req.params;
+  const categoria = await Categoria.findByPk(id,{
+    attributes:["id","nombre"],
+      include:[
+        {
+          model:Producto,
+          as:"productos",
+          attributes:["id","nombre","precio","stock"],
+        },
+      ],
+    
+  });
+  res.status(200).json(categoria)
+  
+}
+
 module.exports = {
   obtenerCategorias,
   obtenerCategoria,
   crearCategoria,
+  obtenerCategoriaConProductos
 };
